@@ -26,7 +26,6 @@ import {
   ArrowIcon,
   BackIcon,
   CheckIcon,
-  PROJECT_ICONS,
   ShieldIcon,
   ClockIcon,
 } from "@/components/icons";
@@ -162,7 +161,6 @@ function ProjectPicker({
 
       <div className="mt-10 grid gap-5 sm:grid-cols-3">
         {PROJECTS.map((p, i) => {
-          const Icon = PROJECT_ICONS[p.icon];
           return (
             <motion.button
               key={p.id}
@@ -182,9 +180,6 @@ function ProjectPicker({
                   priority={i === 0}
                 />
                 <span className="absolute inset-0 bg-gradient-to-t from-blue/45 to-transparent" />
-                <span className="absolute left-4 top-4 flex h-11 w-11 items-center justify-center bg-white/95 text-blue shadow-soft">
-                  <Icon className="h-6 w-6" />
-                </span>
               </span>
               <span className="flex flex-1 flex-col p-5">
                 <span className="text-xl font-semibold text-ink">{p.name}</span>
