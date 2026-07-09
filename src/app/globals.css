@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+/* ---- Archadeck brand tokens ---- */
+:root {
+  --brand-cyan: #26b6ea;
+  --brand-cyan-600: #1c9bcb;
+  --brand-blue: #0065a4;
+  --brand-blue-900: #004b7a;
+  --ink: #0f2a3a;
+  --muted: #6e6e6e;
+  --hair: #e3e8ec;
+  --field: #efefef;
+  --paper: #ffffff;
+  --wash: #f4f8fb;
+}
+
+@theme inline {
+  --color-brand: var(--brand-cyan);
+  --color-brand-600: var(--brand-cyan-600);
+  --color-blue: var(--brand-blue);
+  --color-blue-900: var(--brand-blue-900);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-hair: var(--hair);
+  --color-field: var(--field);
+  --color-wash: var(--wash);
+
+  --font-heading: var(--font-jost), "ITC Avant Garde Gothic Pro", Verdana, sans-serif;
+  --font-serif: var(--font-baskerville), "Baskerville Display PT", Georgia, serif;
+  --font-body: Verdana, Geneva, Tahoma, sans-serif;
+
+  --radius: 0px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, .u-heading {
+  font-family: var(--font-heading);
+  letter-spacing: -0.01em;
+}
+
+.u-serif {
+  font-family: var(--font-serif);
+}
+
+/* Uppercase geometric label, echoing the brand's Avant Garde treatment */
+.u-eyebrow {
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-weight: 600;
+}
+
+/* Sharp-cornered brand shadow from the design tokens */
+.shadow-brand {
+  box-shadow: rgba(0, 0, 0, 0.34) 0px 6px 22px 0px;
+}
+.shadow-soft {
+  box-shadow: 0 1px 2px rgba(15, 42, 58, 0.05), 0 12px 30px -18px rgba(15, 42, 58, 0.35);
+}
+
+::selection {
+  background: var(--brand-cyan);
+  color: #fff;
+}
+
+/* Thin brand scrollbar for the option lists */
+.scroll-thin::-webkit-scrollbar { width: 8px; }
+.scroll-thin::-webkit-scrollbar-thumb { background: #cdd8e0; }
+.scroll-thin::-webkit-scrollbar-track { background: transparent; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
