@@ -516,17 +516,6 @@ function ImageTile({
             on ? "bg-blue/25" : "bg-blue/0 group-hover:bg-blue/10"
           }`}
         />
-        <span
-          className={`absolute right-2 top-2 flex h-6 w-6 items-center justify-center border transition ${
-            isMulti ? "" : "rounded-full"
-          } ${
-            on
-              ? "border-brand bg-brand text-white opacity-100"
-              : "border-white/80 bg-white/80 text-transparent opacity-0 group-hover:opacity-100"
-          }`}
-        >
-          <CheckIcon className="h-3.5 w-3.5" />
-        </span>
         {isMulti && opt.min ? (
           <span className="absolute bottom-2 left-2 bg-blue px-2 py-0.5 text-xs font-semibold text-white">
             +{formatUSD(opt.min)}
