@@ -241,3 +241,11 @@ export function baseStartingPrice(project: ProjectType): number {
 export function formatUSD(n: number): string {
   return "$" + Math.round(n).toLocaleString("en-US");
 }
+
+/**
+ * Per-option project photo, scraped from the live estimator. Files live at
+ * public/options/<stepId>__<optId>.jpg — every current option has one.
+ */
+export function optionImage(stepId: string, optId: string): string {
+  return `/options/${stepId}__${optId}.jpg`;
+}

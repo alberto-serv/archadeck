@@ -16,7 +16,9 @@ import {
   computeStartingPrice,
   formatUSD,
   getProject,
+  optionImage,
   type Answers,
+  type Option,
   type ProjectType,
   type Question,
 } from "@/lib/estimator";
@@ -241,6 +243,16 @@ function Configurator({
     return out;
   }, [project, answers]);
 
+  // Live preview image — updates to the option the user just interacted with.
+  const [hero, setHero] = useState(project.image);
+  const [heroCaption, setHeroCaption] = useState<string | null>(null);
+
+  function handleToggle(step: Question, opt: Option) {
+    onToggle(step, opt.id);
+    setHero(optionImage(step.id, opt.id));
+    setHeroCaption(opt.label);
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -273,18 +285,34 @@ function Configurator({
 
       <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8">
         <div className="grid gap-8 lg:grid-cols-[5fr_4fr] lg:gap-12">
-          {/* Left — visual */}
+          {/* Left — live visual */}
           <div className="lg:sticky lg:top-36 lg:self-start">
             <div className="relative aspect-[4/3] w-full overflow-hidden border border-hair shadow-soft">
-              <Image
-                src={project.image}
-                alt={`Archadeck ${project.name}`}
-                fill
-                sizes="(max-width: 1024px) 100vw, 55vw"
-                className="object-cover"
-                priority
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-blue/70 via-blue/10 to-transparent" />
+              <AnimatePresence initial={false}>
+                <motion.div
+                  key={hero}
+                  initial={{ opacity: 0, scale: 1.04 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
+                  className="absolute inset-0"
+                >
+                  <Image
+                    src={hero}
+                    alt={heroCaption ?? `Archadeck ${project.name}`}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 55vw"
+                    className="object-cover"
+                    priority
+                  />
+                </motion.div>
+              </AnimatePresence>
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-blue/75 via-blue/10 to-transparent" />
+              {heroCaption && (
+                <span className="u-eyebrow absolute left-5 top-5 bg-white/95 px-3 py-1 text-[10px] text-blue">
+                  {heroCaption}
+                </span>
+              )}
               <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
                 <p className="u-eyebrow text-[10px] text-white/80">Your design</p>
                 <div className="mt-2 flex flex-wrap gap-2">
@@ -308,7 +336,7 @@ function Configurator({
               </div>
             </div>
             <p className="mt-3 text-xs italic leading-relaxed text-muted">
-              Photo is illustrative. Final design, materials, and dimensions are
+              Photos are illustrative. Final design, materials, and dimensions are
               confirmed with your designer based on your site.
             </p>
           </div>
@@ -320,7 +348,7 @@ function Configurator({
                 key={step.id}
                 step={step}
                 selected={answers[step.id] ?? []}
-                onToggle={(optId) => onToggle(step, optId)}
+                onToggle={(opt) => handleToggle(step, opt)}
               />
             ))}
 
@@ -363,7 +391,7 @@ function ConfigSection({
 }: {
   step: Question;
   selected: string[];
-  onToggle: (optId: string) => void;
+  onToggle: (opt: Option) => void;
 }) {
   const isMulti = step.kind === "multi";
   return (
@@ -374,42 +402,65 @@ function ConfigSection({
       </div>
       {step.helper && <p className="mt-1 text-sm text-muted">{step.helper}</p>}
 
-      <div className={`mt-4 grid gap-2.5 ${isMulti ? "sm:grid-cols-2" : "sm:grid-cols-2"}`}>
+      <div className="mt-4 grid grid-cols-2 gap-2.5">
         {step.options.map((opt) => {
           const on = selected.includes(opt.id);
           return (
             <button
               key={opt.id}
-              onClick={() => onToggle(opt.id)}
+              onClick={() => onToggle(opt)}
               aria-pressed={on}
-              className={`group flex items-center gap-3 border p-3.5 text-left transition ${
+              className={`group relative overflow-hidden border text-left transition ${
                 on
-                  ? "border-brand bg-brand/[0.06] shadow-soft"
-                  : "border-hair bg-white hover:border-brand/60 hover:bg-wash"
+                  ? "border-brand shadow-brand"
+                  : "border-hair hover:border-brand/60 hover:shadow-soft"
               }`}
             >
+              <span className="relative block aspect-[16/10] w-full overflow-hidden bg-wash">
+                <Image
+                  src={optionImage(step.id, opt.id)}
+                  alt={opt.label}
+                  fill
+                  sizes="(max-width: 1024px) 45vw, 22vw"
+                  className="object-cover transition duration-500 group-hover:scale-105"
+                  loading="lazy"
+                />
+                <span
+                  className={`absolute inset-0 transition ${
+                    on ? "bg-blue/25" : "bg-blue/0 group-hover:bg-blue/10"
+                  }`}
+                />
+                <span
+                  className={`absolute right-2 top-2 flex h-6 w-6 items-center justify-center border transition ${
+                    isMulti ? "" : "rounded-full"
+                  } ${
+                    on
+                      ? "border-brand bg-brand text-white opacity-100"
+                      : "border-white/80 bg-white/80 text-transparent opacity-0 group-hover:opacity-100"
+                  }`}
+                >
+                  <CheckIcon className="h-3.5 w-3.5" />
+                </span>
+                {isMulti && opt.min ? (
+                  <span className="absolute bottom-2 left-2 bg-blue px-2 py-0.5 text-xs font-semibold text-white">
+                    +{formatUSD(opt.min)}
+                  </span>
+                ) : null}
+              </span>
               <span
-                className={`flex h-5 w-5 flex-none items-center justify-center border transition ${
-                  isMulti ? "" : "rounded-full"
-                } ${
-                  on
-                    ? "border-brand bg-brand text-white"
-                    : "border-[#c8d3db] bg-white text-transparent group-hover:border-brand"
+                className={`block px-3 py-2.5 transition ${
+                  on ? "bg-brand/[0.06]" : "bg-white"
                 }`}
               >
-                <CheckIcon className="h-3 w-3" />
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold text-ink">{opt.label}</span>
+                <span className="block text-sm font-semibold leading-tight text-ink">
+                  {opt.label}
+                </span>
                 {opt.sublabel && (
                   <span className="mt-0.5 block text-xs leading-snug text-muted">
                     {opt.sublabel}
                   </span>
                 )}
               </span>
-              {isMulti && opt.min ? (
-                <span className="text-xs font-semibold text-blue">+{formatUSD(opt.min)}</span>
-              ) : null}
             </button>
           );
         })}
