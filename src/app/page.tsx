@@ -26,14 +26,14 @@ export default function Home() {
             <span className="u-serif italic font-normal text-blue"> priced in minutes.</span>
           </h1>
           <p className="u-serif mx-auto mt-5 max-w-xl text-lg text-muted sm:text-xl">
-            Tell us a little about your project and we&apos;ll give you a
-            transparent price range — no phone call, no obligation.
+            Configure your project and see a transparent starting price
+            instantly — no phone call, no obligation.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm">
             {[
               { icon: ClockIcon, t: "Under 2 minutes" },
-              { icon: TagIcon, t: "Transparent range" },
+              { icon: TagIcon, t: "Transparent pricing" },
               { icon: ShieldIcon, t: "No obligation" },
             ].map(({ icon: Icon, t }) => (
               <span key={t} className="flex items-center gap-2 text-ink">
@@ -46,7 +46,7 @@ export default function Home() {
             href="#estimator"
             className="u-eyebrow mt-9 inline-block bg-brand px-9 py-4 text-xs text-white shadow-brand transition hover:bg-brand-600"
           >
-            Start my free estimate ↓
+            Configure my project ↓
           </a>
         </div>
       </section>
