@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import {
   animate,
   motion,
@@ -73,12 +74,29 @@ export function PriceReveal({
         Your {project.name.toLowerCase()} project
       </h2>
 
+      {/* Project photo banner */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="relative mt-5 h-32 w-full overflow-hidden sm:h-40"
+      >
+        <Image
+          src={project.image}
+          alt={`Archadeck ${project.name} project`}
+          fill
+          sizes="(max-width: 768px) 100vw, 768px"
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-blue/50 to-transparent" />
+      </motion.div>
+
       {/* The number */}
       <motion.div
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="mt-6 border border-hair bg-gradient-to-br from-white to-wash p-7 shadow-soft sm:p-9"
+        className="border border-hair bg-gradient-to-br from-white to-wash p-7 shadow-soft sm:p-9"
       >
         <span className="u-eyebrow flex items-center gap-2 text-[10px] text-muted">
           <TagIcon className="h-4 w-4 text-brand" /> Transparent price range

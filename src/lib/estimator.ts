@@ -29,6 +29,8 @@ export type ProjectType = {
   /** Headline range shown on the picker card. */
   range: [number, number];
   icon: "deck" | "porch" | "patio";
+  /** Real Archadeck project photo (public/). */
+  image: string;
   steps: Question[];
 };
 
@@ -52,6 +54,7 @@ export const PROJECTS: ProjectType[] = [
     tagline: "Custom decks in wood, composite & PVC",
     range: [12000, 95200],
     icon: "deck",
+    image: "/projects/deck.jpg",
     steps: [
       {
         id: "deck-size",
@@ -120,6 +123,7 @@ export const PROJECTS: ProjectType[] = [
     tagline: "Covered, screened & three-season rooms",
     range: [20000, 156000],
     icon: "porch",
+    image: "/projects/porch.jpg",
     steps: [
       {
         id: "porch-type",
@@ -168,6 +172,7 @@ export const PROJECTS: ProjectType[] = [
     tagline: "Pavers, natural stone & outdoor living",
     range: [5200, 141500],
     icon: "patio",
+    image: "/projects/patio.jpg",
     steps: [
       {
         id: "patio-project",

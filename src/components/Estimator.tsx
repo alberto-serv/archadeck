@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   PROJECTS,
@@ -188,28 +189,48 @@ export function Estimator() {
                       initial={{ opacity: 0, y: 16 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: reduce ? 0 : 0.05 * i, duration: 0.4 }}
-                      className="group relative flex items-center gap-5 border border-hair bg-white p-5 text-left shadow-soft transition hover:border-brand hover:shadow-brand sm:p-6"
+                      className="group relative flex flex-col overflow-hidden border border-hair bg-white text-left shadow-soft transition hover:border-brand hover:shadow-brand sm:flex-row sm:items-stretch"
                     >
-                      <span className="flex h-14 w-14 flex-none items-center justify-center bg-wash text-blue transition group-hover:bg-brand group-hover:text-white sm:h-16 sm:w-16">
-                        <Icon className="h-7 w-7 sm:h-8 sm:w-8" />
+                      {/* Real project photo */}
+                      <span className="relative block h-32 w-full flex-none overflow-hidden sm:h-auto sm:w-48 md:w-56">
+                        <Image
+                          src={p.image}
+                          alt={`Archadeck ${p.name} project`}
+                          fill
+                          sizes="(max-width: 640px) 100vw, 224px"
+                          className="object-cover transition duration-500 group-hover:scale-105"
+                        />
+                        <span
+                          aria-hidden
+                          className="absolute inset-0 bg-blue/0 transition group-hover:bg-blue/10"
+                        />
                       </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block text-xl font-semibold text-ink sm:text-2xl">
-                          {p.name}
+
+                      <span className="flex flex-1 items-center gap-4 p-5 sm:p-6">
+                        <span className="flex h-12 w-12 flex-none items-center justify-center bg-wash text-blue transition group-hover:bg-brand group-hover:text-white sm:h-14 sm:w-14">
+                          <Icon className="h-6 w-6 sm:h-7 sm:w-7" />
                         </span>
-                        <span className="u-serif mt-0.5 block text-sm text-muted sm:text-base">
-                          {p.tagline}
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-xl font-semibold text-ink sm:text-2xl">
+                            {p.name}
+                          </span>
+                          <span className="u-serif mt-0.5 block text-sm text-muted sm:text-base">
+                            {p.tagline}
+                          </span>
+                          <span className="mt-1 block text-sm font-semibold text-blue sm:hidden">
+                            {formatUSD(p.range[0])}–{formatUSD(p.range[1])}
+                          </span>
                         </span>
+                        <span className="hidden text-right sm:block">
+                          <span className="u-eyebrow block text-[10px] text-muted">
+                            Typically
+                          </span>
+                          <span className="block text-sm font-semibold text-blue">
+                            {formatUSD(p.range[0])}–{formatUSD(p.range[1])}
+                          </span>
+                        </span>
+                        <ArrowIcon className="h-5 w-5 flex-none text-hair transition group-hover:translate-x-1 group-hover:text-brand" />
                       </span>
-                      <span className="hidden text-right sm:block">
-                        <span className="u-eyebrow block text-[10px] text-muted">
-                          Typically
-                        </span>
-                        <span className="block text-sm font-semibold text-blue">
-                          {formatUSD(p.range[0])}–{formatUSD(p.range[1])}
-                        </span>
-                      </span>
-                      <ArrowIcon className="h-5 w-5 flex-none text-hair transition group-hover:translate-x-1 group-hover:text-brand" />
                     </motion.button>
                   );
                 })}
