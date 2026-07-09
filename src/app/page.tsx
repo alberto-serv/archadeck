@@ -3,11 +3,11 @@ import { Estimator } from "@/components/Estimator";
 
 export default function Home() {
   return (
-    <div id="top">
+    <div id="top" className="flex min-h-screen flex-col">
       <Header />
 
       {/* Estimator */}
-      <main className="py-12 sm:py-16">
+      <main className="flex-1 py-12 sm:py-16">
         <Estimator />
       </main>
 
