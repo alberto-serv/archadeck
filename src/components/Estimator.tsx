@@ -196,8 +196,8 @@ function ProjectPicker({
                       {formatUSD(baseStartingPrice(p))}
                     </span>
                   </span>
-                  <span className="u-eyebrow flex items-center gap-1.5 text-[10px] text-brand">
-                    Configure <ArrowIcon className="h-4 w-4 transition group-hover:translate-x-1" />
+                  <span className="u-eyebrow text-[10px] text-brand transition group-hover:text-brand-600">
+                    Configure
                   </span>
                 </span>
               </span>
@@ -249,8 +249,14 @@ function Configurator({
 
   function handleToggle(step: Question, opt: Option) {
     onToggle(step, opt.id);
-    setHero(optionImage(step.id, opt.id));
-    setHeroCaption(opt.label);
+    // "Not sure" has no representative photo — keep the polished project shot.
+    if (opt.id === "unsure") {
+      setHero(project.image);
+      setHeroCaption(null);
+    } else {
+      setHero(optionImage(step.id, opt.id));
+      setHeroCaption(opt.label);
+    }
   }
 
   return (
@@ -262,7 +268,7 @@ function Configurator({
     >
       {/* Sticky price header */}
       <div className="sticky top-16 z-20 border-y border-hair bg-white/90 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3 sm:px-8">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3 sm:px-8">
           <button
             onClick={onBack}
             className="u-eyebrow flex items-center gap-1.5 text-[11px] text-muted transition hover:text-blue"
@@ -283,8 +289,8 @@ function Configurator({
         </div>
       </div>
 
-      <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8">
-        <div className="grid gap-8 lg:grid-cols-[5fr_4fr] lg:gap-12">
+      <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8">
+        <div className="grid gap-8 lg:grid-cols-[1.5fr_1fr] lg:gap-14">
           {/* Left — live visual */}
           <div className="lg:sticky lg:top-36 lg:self-start">
             <div className="relative aspect-[4/3] w-full overflow-hidden border border-hair shadow-soft">
@@ -301,7 +307,7 @@ function Configurator({
                     src={hero}
                     alt={heroCaption ?? `Archadeck ${project.name}`}
                     fill
-                    sizes="(max-width: 1024px) 100vw, 55vw"
+                    sizes="(max-width: 1024px) 100vw, 60vw"
                     className="object-cover"
                     priority
                   />
@@ -394,6 +400,9 @@ function ConfigSection({
   onToggle: (opt: Option) => void;
 }) {
   const isMulti = step.kind === "multi";
+  // Size is an abstract choice — cleaner as text cards than photos.
+  const textOnly = step.section === "Size";
+
   return (
     <section>
       <div className="flex items-baseline justify-between">
@@ -405,67 +414,137 @@ function ConfigSection({
       <div className="mt-4 grid grid-cols-2 gap-2.5">
         {step.options.map((opt) => {
           const on = selected.includes(opt.id);
+          // Text card for sizes and for the "Not sure" escape hatch.
+          if (textOnly || opt.id === "unsure") {
+            return (
+              <TextCard
+                key={opt.id}
+                opt={opt}
+                on={on}
+                priced={isMulti}
+                onClick={() => onToggle(opt)}
+              />
+            );
+          }
           return (
-            <button
+            <ImageTile
               key={opt.id}
+              step={step}
+              opt={opt}
+              on={on}
+              isMulti={isMulti}
               onClick={() => onToggle(opt)}
-              aria-pressed={on}
-              className={`group relative overflow-hidden border text-left transition ${
-                on
-                  ? "border-brand shadow-brand"
-                  : "border-hair hover:border-brand/60 hover:shadow-soft"
-              }`}
-            >
-              <span className="relative block aspect-[16/10] w-full overflow-hidden bg-wash">
-                <Image
-                  src={optionImage(step.id, opt.id)}
-                  alt={opt.label}
-                  fill
-                  sizes="(max-width: 1024px) 45vw, 22vw"
-                  className="object-cover transition duration-500 group-hover:scale-105"
-                  loading="lazy"
-                />
-                <span
-                  className={`absolute inset-0 transition ${
-                    on ? "bg-blue/25" : "bg-blue/0 group-hover:bg-blue/10"
-                  }`}
-                />
-                <span
-                  className={`absolute right-2 top-2 flex h-6 w-6 items-center justify-center border transition ${
-                    isMulti ? "" : "rounded-full"
-                  } ${
-                    on
-                      ? "border-brand bg-brand text-white opacity-100"
-                      : "border-white/80 bg-white/80 text-transparent opacity-0 group-hover:opacity-100"
-                  }`}
-                >
-                  <CheckIcon className="h-3.5 w-3.5" />
-                </span>
-                {isMulti && opt.min ? (
-                  <span className="absolute bottom-2 left-2 bg-blue px-2 py-0.5 text-xs font-semibold text-white">
-                    +{formatUSD(opt.min)}
-                  </span>
-                ) : null}
-              </span>
-              <span
-                className={`block px-3 py-2.5 transition ${
-                  on ? "bg-brand/[0.06]" : "bg-white"
-                }`}
-              >
-                <span className="block text-sm font-semibold leading-tight text-ink">
-                  {opt.label}
-                </span>
-                {opt.sublabel && (
-                  <span className="mt-0.5 block text-xs leading-snug text-muted">
-                    {opt.sublabel}
-                  </span>
-                )}
-              </span>
-            </button>
+            />
           );
         })}
       </div>
     </section>
+  );
+}
+
+/* Clean bordered text card — used for sizes and the "Not sure" option. */
+function TextCard({
+  opt,
+  on,
+  priced,
+  onClick,
+}: {
+  opt: Option;
+  on: boolean;
+  priced: boolean;
+  onClick: () => void;
+}) {
+  const isUnsure = opt.id === "unsure";
+  const sublabel = opt.sublabel ?? (isUnsure ? "We'll help you decide" : undefined);
+  return (
+    <button
+      onClick={onClick}
+      aria-pressed={on}
+      className={`flex min-h-[92px] flex-col justify-center border-2 p-4 text-left transition ${
+        on
+          ? "border-brand bg-brand/[0.05] shadow-soft"
+          : "border-hair bg-white hover:border-brand/50 hover:bg-wash"
+      }`}
+    >
+      <span className="text-base font-semibold leading-tight text-ink">{opt.label}</span>
+      {sublabel && (
+        <span
+          className={`mt-1 text-sm leading-snug ${
+            isUnsure ? "u-serif italic text-muted" : "text-muted"
+          }`}
+        >
+          {sublabel}
+        </span>
+      )}
+      {priced && opt.min ? (
+        <span className="mt-2 text-xs font-semibold text-blue">+{formatUSD(opt.min)}</span>
+      ) : null}
+    </button>
+  );
+}
+
+/* Photo tile — used for type / material / add-on choices. */
+function ImageTile({
+  step,
+  opt,
+  on,
+  isMulti,
+  onClick,
+}: {
+  step: Question;
+  opt: Option;
+  on: boolean;
+  isMulti: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      aria-pressed={on}
+      className={`group relative overflow-hidden border text-left transition ${
+        on
+          ? "border-brand shadow-brand"
+          : "border-hair hover:border-brand/60 hover:shadow-soft"
+      }`}
+    >
+      <span className="relative block aspect-[16/10] w-full overflow-hidden bg-wash">
+        <Image
+          src={optionImage(step.id, opt.id)}
+          alt={opt.label}
+          fill
+          sizes="(max-width: 1024px) 45vw, 20vw"
+          className="object-cover transition duration-500 group-hover:scale-105"
+          loading="lazy"
+        />
+        <span
+          className={`absolute inset-0 transition ${
+            on ? "bg-blue/25" : "bg-blue/0 group-hover:bg-blue/10"
+          }`}
+        />
+        <span
+          className={`absolute right-2 top-2 flex h-6 w-6 items-center justify-center border transition ${
+            isMulti ? "" : "rounded-full"
+          } ${
+            on
+              ? "border-brand bg-brand text-white opacity-100"
+              : "border-white/80 bg-white/80 text-transparent opacity-0 group-hover:opacity-100"
+          }`}
+        >
+          <CheckIcon className="h-3.5 w-3.5" />
+        </span>
+        {isMulti && opt.min ? (
+          <span className="absolute bottom-2 left-2 bg-blue px-2 py-0.5 text-xs font-semibold text-white">
+            +{formatUSD(opt.min)}
+          </span>
+        ) : null}
+      </span>
+      <span className={`block px-3 py-2.5 transition ${on ? "bg-brand/[0.06]" : "bg-white"}`}>
+        <span className="block text-sm font-semibold leading-tight text-ink">{opt.label}</span>
+        {opt.sublabel && (
+          <span className="mt-0.5 block text-xs leading-snug text-muted">{opt.sublabel}</span>
+        )}
+      </span>
+    </button>
   );
 }
 
