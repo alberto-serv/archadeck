@@ -57,7 +57,7 @@ export const PROJECTS: ProjectType[] = [
         base: true,
         options: [
           { id: "small", label: "Small", sublabel: "150–300 sq ft", min: 12000, max: 20000 },
-          { id: "medium", label: "Medium", sublabel: "300–450 sq ft · most common", min: 20000, max: 40000 },
+          { id: "medium", label: "Medium", sublabel: "300–450 sq ft", min: 20000, max: 40000 },
           { id: "large", label: "Large", sublabel: "450+ sq ft", min: 32000, max: 75000 },
           { id: "unsure", label: "Not sure yet", sublabel: "We'll help you size it", min: 20000, max: 75000 },
         ],
@@ -118,7 +118,7 @@ export const PROJECTS: ProjectType[] = [
         kind: "single",
         options: [
           { id: "small", label: "Small", sublabel: "Under 150 sq ft" },
-          { id: "medium", label: "Medium", sublabel: "150–250 sq ft · most common" },
+          { id: "medium", label: "Medium", sublabel: "150–250 sq ft" },
           { id: "large", label: "Large", sublabel: "250–400 sq ft" },
           { id: "xl", label: "Extra large", sublabel: "400+ sq ft" },
           { id: "unsure", label: "Not sure" },
@@ -170,7 +170,7 @@ export const PROJECTS: ProjectType[] = [
         title: "What size is your project area?",
         kind: "single",
         options: [
-          { id: "medium", label: "Medium", sublabel: "100–300 sq ft · most common" },
+          { id: "medium", label: "Medium", sublabel: "100–300 sq ft" },
           { id: "large", label: "Large", sublabel: "350–500 sq ft" },
           { id: "xl", label: "Extra large", sublabel: "500+ sq ft" },
           { id: "unsure", label: "Not sure" },

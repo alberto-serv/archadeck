@@ -455,16 +455,16 @@ function TextCard({
     <button
       onClick={onClick}
       aria-pressed={on}
-      className={`flex min-h-[92px] flex-col justify-center border-2 p-4 text-left transition ${
+      className={`flex items-baseline gap-2 border-2 px-3.5 py-2.5 text-left transition ${
         on
           ? "border-brand bg-brand/[0.05] shadow-soft"
           : "border-hair bg-white hover:border-brand/50 hover:bg-wash"
       }`}
     >
-      <span className="text-base font-semibold leading-tight text-ink">{opt.label}</span>
+      <span className="flex-none text-sm font-semibold text-ink">{opt.label}</span>
       {sublabel && (
         <span
-          className={`mt-1 text-sm leading-snug ${
+          className={`min-w-0 flex-1 truncate text-xs ${
             isUnsure ? "u-serif italic text-muted" : "text-muted"
           }`}
         >
@@ -472,7 +472,7 @@ function TextCard({
         </span>
       )}
       {priced && opt.min ? (
-        <span className="mt-2 text-xs font-semibold text-blue">+{formatUSD(opt.min)}</span>
+        <span className="flex-none text-xs font-semibold text-blue">+{formatUSD(opt.min)}</span>
       ) : null}
     </button>
   );
