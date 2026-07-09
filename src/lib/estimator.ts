@@ -226,12 +226,16 @@ export function computeStartingPrice(project: ProjectType, answers: Answers): nu
   return low;
 }
 
-/** Lowest possible entry price for a project — used on the picker cards. */
+/**
+ * Entry price shown on the picker cards. Anchored to the project's primary
+ * offering — the first base option (e.g. a patio install, not the cheaper
+ * retaining wall) — rather than the absolute cheapest line item.
+ */
 export function baseStartingPrice(project: ProjectType): number {
   const base = project.steps.find((s) => s.base);
   if (!base) return 0;
-  const mins = base.options.map((o) => o.min ?? Infinity).filter((n) => n !== Infinity);
-  return mins.length ? Math.min(...mins) : 0;
+  const primary = base.options.find((o) => o.min);
+  return primary?.min ?? 0;
 }
 
 export function formatUSD(n: number): string {
