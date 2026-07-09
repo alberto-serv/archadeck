@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import {
   AnimatePresence,
   animate,
@@ -25,7 +26,6 @@ import {
 import {
   ArrowIcon,
   BackIcon,
-  CheckIcon,
   ShieldIcon,
   ClockIcon,
 } from "@/components/icons";
@@ -50,11 +50,10 @@ function PriceCounter({ value }: { value: number }) {
 
 export function Estimator() {
   const reduce = useReducedMotion();
+  const router = useRouter();
   const [phase, setPhase] = useState<Phase>("select");
   const [projectId, setProjectId] = useState<ProjectType["id"] | null>(null);
   const [answers, setAnswers] = useState<Answers>({});
-  const [showContact, setShowContact] = useState(false);
-  const [sent, setSent] = useState(false);
 
   const project = getProject(projectId);
   const price = useMemo(
@@ -66,7 +65,6 @@ export function Estimator() {
     setProjectId(p.id);
     setAnswers({ ...p.defaults });
     setPhase("configure");
-    setSent(false);
     if (typeof window !== "undefined") {
       requestAnimationFrame(() =>
         document.getElementById("estimator")?.scrollIntoView({ behavior: "smooth", block: "start" }),
@@ -78,9 +76,13 @@ export function Estimator() {
     setPhase("select");
     setProjectId(null);
     setAnswers({});
-    setShowContact(false);
-    setSent(false);
     document.getElementById("estimator")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function goToCheckout() {
+    if (!project) return;
+    const config = encodeURIComponent(JSON.stringify(answers));
+    router.push(`/checkout?project=${project.id}&config=${config}`);
   }
 
   function toggle(q: Question, optId: string) {
@@ -108,24 +110,9 @@ export function Estimator() {
               price={price}
               onToggle={toggle}
               onBack={reset}
-              onContinue={() => setShowContact(true)}
+              onContinue={goToCheckout}
             />
           )
-        )}
-      </AnimatePresence>
-
-      {/* Lead capture */}
-      <AnimatePresence>
-        {showContact && project && (
-          <ContactModal
-            project={project}
-            answers={answers}
-            price={price}
-            sent={sent}
-            onSent={() => setSent(true)}
-            onClose={() => setShowContact(false)}
-            onRestart={reset}
-          />
         )}
       </AnimatePresence>
     </div>
@@ -532,136 +519,3 @@ function ImageTile({
   );
 }
 
-/* ------------------------------ Contact modal ---------------------------- */
-
-function ContactModal({
-  project,
-  answers,
-  price,
-  sent,
-  onSent,
-  onClose,
-  onRestart,
-}: {
-  project: ProjectType;
-  answers: Answers;
-  price: number;
-  sent: boolean;
-  onSent: () => void;
-  onClose: () => void;
-  onRestart: () => void;
-}) {
-  const summary = useMemo(() => {
-    const rows: { label: string; value: string }[] = [];
-    for (const step of project.steps) {
-      const sel = answers[step.id] ?? [];
-      const labels = sel
-        .map((id) => step.options.find((o) => o.id === id)?.label)
-        .filter(Boolean) as string[];
-      if (labels.length) rows.push({ label: step.section, value: labels.join(", ") });
-    }
-    return rows;
-  }, [project, answers]);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
-    >
-      <div className="absolute inset-0 bg-ink/40 backdrop-blur-sm" onClick={onClose} />
-      <motion.div
-        initial={{ opacity: 0, y: 30, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 30, scale: 0.98 }}
-        transition={{ type: "spring", damping: 26, stiffness: 300 }}
-        className="relative w-full max-w-lg overflow-hidden bg-white shadow-brand"
-      >
-        {sent ? (
-          <div className="p-8 text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center bg-brand text-white">
-              <CheckIcon className="h-7 w-7" />
-            </div>
-            <h3 className="mt-5 text-2xl font-semibold text-ink">You&apos;re all set</h3>
-            <p className="u-serif mt-2 text-muted">
-              A Chicagoland design consultant will reach out shortly with your
-              detailed, itemized estimate for your {project.name.toLowerCase()}.
-            </p>
-            <button
-              onClick={onRestart}
-              className="u-eyebrow mt-6 bg-blue px-6 py-3 text-[11px] text-white transition hover:bg-blue-900"
-            >
-              Estimate another project
-            </button>
-          </div>
-        ) : (
-          <>
-            <div className="bg-blue p-6 text-white sm:p-7">
-              <p className="u-eyebrow text-[10px] text-white/75">
-                {project.name} · your estimate
-              </p>
-              <div className="mt-1 flex items-baseline gap-2">
-                <span className="u-eyebrow text-[11px] text-white/80">Starting at</span>
-                <span className="text-3xl font-bold tabular-nums">{formatUSD(price)}</span>
-              </div>
-              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-white/75">
-                {summary.map((r) => (
-                  <span key={r.label}>
-                    <span className="text-white/55">{r.label}:</span> {r.value}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <div className="p-6 sm:p-7">
-              <h3 className="text-lg font-semibold text-ink">
-                Get it itemized down to the board
-              </h3>
-              <p className="u-serif mt-1 text-sm text-muted">
-                A detailed written estimate and a free design consult — no pressure,
-                no phone tag.
-              </p>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  onSent();
-                }}
-                className="mt-5 grid gap-3 sm:grid-cols-2"
-              >
-                <input
-                  required
-                  placeholder="Full name"
-                  className="bg-field px-4 py-3 text-ink placeholder:text-[#8a8a8a] outline-none ring-brand focus:ring-2"
-                />
-                <input
-                  required
-                  type="tel"
-                  placeholder="Phone"
-                  className="bg-field px-4 py-3 text-ink placeholder:text-[#8a8a8a] outline-none ring-brand focus:ring-2"
-                />
-                <input
-                  required
-                  type="email"
-                  placeholder="Email"
-                  className="bg-field px-4 py-3 text-ink placeholder:text-[#8a8a8a] outline-none ring-brand focus:ring-2 sm:col-span-2"
-                />
-                <button
-                  type="submit"
-                  className="u-eyebrow bg-brand px-6 py-3.5 text-xs text-white shadow-brand transition hover:bg-brand-600 sm:col-span-2"
-                >
-                  Send my detailed estimate
-                </button>
-              </form>
-              <button
-                onClick={onClose}
-                className="mt-3 w-full text-center text-sm text-muted underline-offset-4 transition hover:text-blue hover:underline"
-              >
-                Keep configuring
-              </button>
-            </div>
-          </>
-        )}
-      </motion.div>
-    </motion.div>
-  );
-}
