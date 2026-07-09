@@ -134,7 +134,7 @@ function ProjectPicker({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -12 }}
       transition={{ duration: 0.35 }}
-      className="mx-auto max-w-5xl px-5 sm:px-8"
+      className="mx-auto max-w-7xl px-5 sm:px-8"
     >
       <div className="text-center">
         <p className="u-eyebrow text-[11px] text-brand">Step 1 · Your project</p>
